@@ -82,12 +82,12 @@ export default function MainLayout() {
 
   return (
     <div className={`app${menuOpen || searchOpen ? ' app--locked' : ''}`}>
-      {/* <Header
+      <Header
         title={currentNav?.title ?? 'HΘΓΞ 博客'}
         menuOpen={menuOpen}
         onMenuClick={toggleMenu}
         onSearchClick={openSearch}
-      /> */}
+      />
 
       <SideMenu
         open={menuOpen}
