@@ -1,5 +1,7 @@
 import Markdown from 'react-markdown'
 import LazyImage from './LazyImage'
+import remarkBreaks from 'remark-breaks'
+import remarkGfm from 'remark-gfm'
 
 function renderBlock(block, index) {
   switch (block.type) {
@@ -12,7 +14,9 @@ function renderBlock(block, index) {
     case 'text':
       return (
         <div key={index} className="article-content__text">
-          <Markdown>{block.content}</Markdown>
+          <Markdown remarkPlugins={[remarkGfm, remarkBreaks]}>
+            {block.content}
+          </Markdown>
         </div>
       )
 
