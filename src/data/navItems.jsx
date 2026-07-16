@@ -14,9 +14,9 @@ export const navItems = [
     label: '发现',
     title: '发现',
     icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="12" cy="12" r="9" />
-        <path d="M14.5 9.5L10 14l4.5 4.5" />
+        <path d="M15.5 8.5L10.2 10.2 8.5 15.5 13.8 13.8 15.5 8.5z" />
       </svg>
     ),
   },
