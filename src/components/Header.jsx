@@ -18,7 +18,7 @@ export default function Header({
         <span />
       </button>
 
-      <h1 className="header__title">{title}</h1>
+      {/* <h1 className="header__title">{title}</h1> */}
 
       <button
         type="button"

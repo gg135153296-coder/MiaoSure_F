@@ -1,5 +1,6 @@
 import { useBlog } from '../context/BlogContext'
 import { navItems } from '../data/navItems'
+import avatarImg from '../assets/touxiang.png'
 
 export default function SideMenu({
   open,
@@ -35,9 +36,14 @@ export default function SideMenu({
         aria-label="侧边导航"
       >
         <div className="side-menu__header">
-          <div className="side-menu__avatar">{blog?.avatar ?? 'M'}</div>
+          <img
+            className="side-menu__avatar"
+            src={avatarImg}
+            alt={blog?.author ?? '头像'}
+          />
           <div>
-            <p className="side-menu__name">{blog?.name ?? 'HΘΓΞ博客'}</p>
+            {/* <p className="side-menu__name">{blog?.name ?? 'HΘΓΞ博客'}</p> */}
+            <p className="side-menu__name">HΘΓΞ博客</p>
             <p className="side-menu__tagline">{blog?.tagline ?? ''}</p>
           </div>
         </div>

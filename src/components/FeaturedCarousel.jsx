@@ -25,7 +25,6 @@ export default function FeaturedCarousel({ posts }) {
   const [active, setActive] = useState(0)
   const [dragX, setDragX] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
-  const [progressKey, setProgressKey] = useState(0)
   const pausedRef = useRef(false)
   const touchStartX = useRef(0)
   const dragXRef = useRef(0)
@@ -36,7 +35,6 @@ export default function FeaturedCarousel({ posts }) {
     if (total === 0) return
     const next = ((index % total) + total) % total
     setActive(next)
-    setProgressKey((k) => k + 1)
   }, [total])
 
   const goNext = useCallback(() => goTo(active + 1), [active, goTo])
@@ -54,11 +52,7 @@ export default function FeaturedCarousel({ posts }) {
 
     const timer = window.setInterval(() => {
       if (pausedRef.current || isDragging) return
-      setActive((prev) => {
-        const next = (prev + 1) % total
-        setProgressKey((k) => k + 1)
-        return next
-      })
+      setActive((prev) => (prev + 1) % total)
     }, AUTO_PLAY_MS)
 
     return () => clearInterval(timer)
@@ -194,13 +188,6 @@ export default function FeaturedCarousel({ posts }) {
                 }}
               />
             ))}
-          </div>
-
-          <div className="featured-carousel__progress" key={progressKey}>
-            <div
-              className="featured-carousel__progress-bar"
-              style={{ animationDuration: `${AUTO_PLAY_MS}ms` }}
-            />
           </div>
         </div>
       )}

@@ -10,12 +10,12 @@ import ProfilePage from '../pages/ProfilePage'
 import { navItems } from '../data/navItems'
 import '../App.css'
 
-const CHROME_HIDE_DELAY = 2800
+const NAV_HIDE_DELAY = 2800
 
 export default function MainLayout() {
   const appRef = useRef(null)
   const hideTimerRef = useRef(null)
-  const [chromeVisible, setChromeVisible] = useState(false)
+  const [navVisible, setNavVisible] = useState(false)
   const [activeTab, setActiveTab] = useState('home')
   const [homeCategory, setHomeCategory] = useState('全部')
   const [menuOpen, setMenuOpen] = useState(false)
@@ -51,35 +51,35 @@ export default function MainLayout() {
     setSearchOpen(false)
   }, [])
 
-  const scheduleHideChrome = useCallback(() => {
+  const scheduleHideNav = useCallback(() => {
     if (hideTimerRef.current) clearTimeout(hideTimerRef.current)
     hideTimerRef.current = window.setTimeout(() => {
-      setChromeVisible(false)
-    }, CHROME_HIDE_DELAY)
+      setNavVisible(false)
+    }, NAV_HIDE_DELAY)
   }, [])
 
-  const showChrome = useCallback(() => {
-    setChromeVisible(true)
+  const showNav = useCallback(() => {
+    setNavVisible(true)
     if (!menuOpen && !searchOpen) {
-      scheduleHideChrome()
+      scheduleHideNav()
     }
-  }, [menuOpen, searchOpen, scheduleHideChrome])
+  }, [menuOpen, searchOpen, scheduleHideNav])
 
   useEffect(() => {
     if (menuOpen || searchOpen) {
-      setChromeVisible(true)
+      setNavVisible(true)
       if (hideTimerRef.current) clearTimeout(hideTimerRef.current)
       return
     }
 
-    scheduleHideChrome()
-  }, [menuOpen, searchOpen, scheduleHideChrome])
+    scheduleHideNav()
+  }, [menuOpen, searchOpen, scheduleHideNav])
 
   useEffect(() => {
     const app = appRef.current
     if (!app) return
 
-    const onInteract = () => showChrome()
+    const onInteract = () => showNav()
 
     app.addEventListener('touchstart', onInteract, { passive: true })
     app.addEventListener('mousedown', onInteract)
@@ -89,7 +89,7 @@ export default function MainLayout() {
       app.removeEventListener('mousedown', onInteract)
       if (hideTimerRef.current) clearTimeout(hideTimerRef.current)
     }
-  }, [showChrome])
+  }, [showNav])
 
   useEffect(() => {
     const onKeyDown = (e) => {
@@ -131,7 +131,7 @@ export default function MainLayout() {
       className={[
         'app',
         menuOpen || searchOpen ? 'app--locked' : '',
-        chromeVisible ? 'app--chrome-visible' : '',
+        navVisible ? 'app--nav-visible' : '',
       ].filter(Boolean).join(' ')}
     >
       <Header

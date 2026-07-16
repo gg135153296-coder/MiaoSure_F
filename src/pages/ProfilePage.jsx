@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { fetchProfileStats } from '../api/profile'
 import { useBlog } from '../context/BlogContext'
+import avatarImg from '../assets/touxiang.png'
 
 export default function ProfilePage() {
   const { blog } = useBlog()
@@ -26,7 +27,11 @@ export default function ProfilePage() {
   return (
     <div className="page-content">
       <section className="profile-card">
-        <div className="profile-card__avatar">{blog?.avatar ?? 'M'}</div>
+        <img
+          className="profile-card__avatar"
+          src={avatarImg}
+          alt={blog?.author ?? '头像'}
+        />
         <h2 className="profile-card__name">{blog?.author ?? ''}</h2>
         <p className="profile-card__bio">{blog?.bio ?? ''}</p>
         <p className="profile-card__tagline">{blog?.tagline ?? ''}</p>
