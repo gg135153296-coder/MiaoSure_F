@@ -10,12 +10,14 @@ import ProfilePage from '../pages/ProfilePage'
 import { navItems } from '../data/navItems'
 import '../App.css'
 
-const NAV_HIDE_DELAY = 2800
+const CHROME_HIDE_DELAY = 3200
+const SCROLL_HIDE_THRESHOLD = 10
 
 export default function MainLayout() {
   const appRef = useRef(null)
   const hideTimerRef = useRef(null)
-  const [navVisible, setNavVisible] = useState(false)
+  const scrollStateRef = useRef({ el: null, lastTop: 0 })
+  const [chromeVisible, setChromeVisible] = useState(false)
   const [activeTab, setActiveTab] = useState('home')
   const [homeCategory, setHomeCategory] = useState('全部')
   const [menuOpen, setMenuOpen] = useState(false)
@@ -51,45 +53,84 @@ export default function MainLayout() {
     setSearchOpen(false)
   }, [])
 
-  const scheduleHideNav = useCallback(() => {
-    if (hideTimerRef.current) clearTimeout(hideTimerRef.current)
-    hideTimerRef.current = window.setTimeout(() => {
-      setNavVisible(false)
-    }, NAV_HIDE_DELAY)
+  const hideChrome = useCallback(() => {
+    setChromeVisible(false)
   }, [])
 
-  const showNav = useCallback(() => {
-    setNavVisible(true)
+  const scheduleHideChrome = useCallback(() => {
+    if (hideTimerRef.current) clearTimeout(hideTimerRef.current)
+    hideTimerRef.current = window.setTimeout(() => {
+      hideChrome()
+    }, CHROME_HIDE_DELAY)
+  }, [hideChrome])
+
+  const showChrome = useCallback(() => {
+    setChromeVisible(true)
     if (!menuOpen && !searchOpen) {
-      scheduleHideNav()
+      scheduleHideChrome()
     }
-  }, [menuOpen, searchOpen, scheduleHideNav])
+  }, [menuOpen, searchOpen, scheduleHideChrome])
 
   useEffect(() => {
     if (menuOpen || searchOpen) {
-      setNavVisible(true)
+      setChromeVisible(true)
       if (hideTimerRef.current) clearTimeout(hideTimerRef.current)
       return
     }
 
-    scheduleHideNav()
-  }, [menuOpen, searchOpen, scheduleHideNav])
+    if (chromeVisible) {
+      scheduleHideChrome()
+    }
+  }, [menuOpen, searchOpen, chromeVisible, scheduleHideChrome])
 
   useEffect(() => {
     const app = appRef.current
     if (!app) return
 
-    const onInteract = () => showNav()
+    const onInteract = () => showChrome()
+
+    const onScroll = (e) => {
+      const target = e.target
+      if (!(target instanceof HTMLElement)) return
+      if (!target.classList.contains('main')) return
+      if (target.dataset.autoscrolling === 'true') return
+
+      const scrollTop = target.scrollTop
+      const state = scrollStateRef.current
+
+      if (state.el !== target) {
+        state.el = target
+        state.lastTop = scrollTop
+        return
+      }
+
+      const delta = scrollTop - state.lastTop
+      if (Math.abs(delta) < SCROLL_HIDE_THRESHOLD) return
+
+      state.lastTop = scrollTop
+
+      if (delta > 0 && scrollTop > 48) {
+        if (hideTimerRef.current) clearTimeout(hideTimerRef.current)
+        hideChrome()
+        return
+      }
+
+      if (delta < 0) {
+        showChrome()
+      }
+    }
 
     app.addEventListener('touchstart', onInteract, { passive: true })
     app.addEventListener('mousedown', onInteract)
+    app.addEventListener('scroll', onScroll, { passive: true, capture: true })
 
     return () => {
       app.removeEventListener('touchstart', onInteract)
       app.removeEventListener('mousedown', onInteract)
+      app.removeEventListener('scroll', onScroll, { capture: true })
       if (hideTimerRef.current) clearTimeout(hideTimerRef.current)
     }
-  }, [showNav])
+  }, [showChrome, hideChrome])
 
   useEffect(() => {
     const onKeyDown = (e) => {
@@ -131,7 +172,7 @@ export default function MainLayout() {
       className={[
         'app',
         menuOpen || searchOpen ? 'app--locked' : '',
-        navVisible ? 'app--nav-visible' : '',
+        chromeVisible ? 'app--chrome-visible' : '',
       ].filter(Boolean).join(' ')}
     >
       <Header
@@ -139,6 +180,7 @@ export default function MainLayout() {
         menuOpen={menuOpen}
         onMenuClick={toggleMenu}
         onSearchClick={openSearch}
+        onBanner={activeTab === 'home'}
       />
 
       <SideMenu

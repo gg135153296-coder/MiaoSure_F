@@ -3,9 +3,10 @@ export default function Header({
   menuOpen,
   onMenuClick,
   onSearchClick,
+  onBanner = false,
 }) {
   return (
-    <header className="header">
+    <header className={`header${onBanner ? ' header--on-banner' : ''}`}>
       <button
         type="button"
         className={`header__menu${menuOpen ? ' header__menu--open' : ''}`}

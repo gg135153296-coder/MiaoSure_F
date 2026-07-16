@@ -4,6 +4,7 @@ import ArticleCard from './ArticleCard'
 const SCROLL_SPEED = 32
 const SCROLL_START_DELAY = 1200
 const BOTTOM_PAUSE_MS = 2000
+const LOOP_SCROLL_DURATION = 900
 
 const LEFT_OFFSETS = [0, 14, 6, 20, 10, 16, 4, 18]
 const RIGHT_OFFSETS = [18, 8, 22, 12, 24, 6, 16, 10]
@@ -26,6 +27,36 @@ function splitColumns(posts) {
   return { left, right }
 }
 
+function easeOutCubic(t) {
+  return 1 - (1 - t) ** 3
+}
+
+function smoothScrollTo(el, to, duration, onDone) {
+  const from = el.scrollTop
+  const distance = to - from
+  if (Math.abs(distance) < 1) {
+    el.scrollTop = to
+    onDone?.()
+    return
+  }
+
+  const start = performance.now()
+
+  const step = (now) => {
+    const elapsed = now - start
+    const progress = Math.min(elapsed / duration, 1)
+    el.scrollTop = from + distance * easeOutCubic(progress)
+
+    if (progress < 1) {
+      requestAnimationFrame(step)
+    } else {
+      onDone?.()
+    }
+  }
+
+  requestAnimationFrame(step)
+}
+
 export default function ArticleList({ posts }) {
   const listRef = useRef(null)
   const stoppedRef = useRef(false)
@@ -33,8 +64,19 @@ export default function ArticleList({ posts }) {
   const pauseTimerRef = useRef(null)
   const lastTimeRef = useRef(0)
 
+  const setAutoScrolling = useCallback((active) => {
+    const scrollEl = listRef.current?.closest('.main')
+    if (!scrollEl) return
+    if (active) {
+      scrollEl.dataset.autoscrolling = 'true'
+    } else {
+      delete scrollEl.dataset.autoscrolling
+    }
+  }, [])
+
   const stopAutoScroll = useCallback(() => {
     stoppedRef.current = true
+    setAutoScrolling(false)
     if (rafRef.current) {
       cancelAnimationFrame(rafRef.current)
       rafRef.current = null
@@ -43,16 +85,19 @@ export default function ArticleList({ posts }) {
       clearTimeout(pauseTimerRef.current)
       pauseTimerRef.current = null
     }
-  }, [])
+  }, [setAutoScrolling])
 
   useEffect(() => {
     stoppedRef.current = false
+    setAutoScrolling(false)
 
     const scrollEl = listRef.current?.closest('.main')
     if (!scrollEl || posts.length === 0) return
 
     const tick = (now) => {
       if (stoppedRef.current) return
+
+      setAutoScrolling(true)
 
       if (!lastTimeRef.current) lastTimeRef.current = now
       const delta = now - lastTimeRef.current
@@ -65,14 +110,18 @@ export default function ArticleList({ posts }) {
       }
 
       if (scrollEl.scrollTop >= maxScroll - 1) {
+        setAutoScrolling(false)
         if (!pauseTimerRef.current) {
           pauseTimerRef.current = window.setTimeout(() => {
             pauseTimerRef.current = null
-            scrollEl.scrollTop = 0
-            lastTimeRef.current = 0
-            if (!stoppedRef.current) {
-              rafRef.current = requestAnimationFrame(tick)
-            }
+            setAutoScrolling(true)
+            smoothScrollTo(scrollEl, 0, LOOP_SCROLL_DURATION, () => {
+              lastTimeRef.current = 0
+              setAutoScrolling(false)
+              if (!stoppedRef.current) {
+                rafRef.current = requestAnimationFrame(tick)
+              }
+            })
           }, BOTTOM_PAUSE_MS)
         }
         return
@@ -102,7 +151,7 @@ export default function ArticleList({ posts }) {
       scrollEl.removeEventListener('mousedown', onUserInteract)
       scrollEl.removeEventListener('wheel', onUserInteract)
     }
-  }, [posts, stopAutoScroll])
+  }, [posts, stopAutoScroll, setAutoScrolling])
 
   const { left, right } = splitColumns(posts)
 

@@ -3,19 +3,16 @@ import { getPostCover } from '../utils/getPostCover'
 
 export default function ArticleCard({ post, index = 0, offsetY = 0 }) {
   const coverImage = getPostCover(post)
-  const col = index % 2
 
   return (
     <Link
       to={`/article/${post.id}`}
-      className="article-card article-card--grid"
+      className="article-card article-card--feed"
       style={{
-        '--stagger': `${Math.floor(index / 2) * 0.08 + col * 0.04}s`,
+        '--stagger': `${index * 0.06}s`,
         '--offset-y': `${offsetY}px`,
       }}
     >
-      <div className="article-card__accent" aria-hidden="true" />
-
       <div className="article-card__cover-wrap">
         {coverImage ? (
           <img
@@ -32,23 +29,20 @@ export default function ArticleCard({ post, index = 0, offsetY = 0 }) {
             aria-hidden="true"
           />
         )}
-        <div className="article-card__cover-shine" aria-hidden="true" />
+        <div className="article-card__cover-overlay" aria-hidden="true" />
         <span className="article-card__category">{post.category}</span>
       </div>
 
       <div className="article-card__body">
         <h3 className="article-card__title">{post.title}</h3>
-        <div className="article-card__footer">
+        {post.excerpt && (
+          <p className="article-card__excerpt">{post.excerpt}</p>
+        )}
+        <div className="article-card__meta">
           <time dateTime={post.date}>{post.date}</time>
-          <span className="article-card__dot">·</span>
-          <span>{post.views} 阅读</span>
+          {post.readTime && <span>{post.readTime}</span>}
+          <span className="article-card__views">{post.views} 阅读</span>
         </div>
-      </div>
-
-      <div className="article-card__arrow" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-          <path d="M9 6l6 6-6 6" />
-        </svg>
       </div>
     </Link>
   )
