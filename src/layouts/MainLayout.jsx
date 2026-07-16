@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import Header from '../components/Header'
 import BottomNav from '../components/BottomNav'
 import SideMenu from '../components/SideMenu'
@@ -10,7 +10,12 @@ import ProfilePage from '../pages/ProfilePage'
 import { navItems } from '../data/navItems'
 import '../App.css'
 
+const CHROME_HIDE_DELAY = 2800
+
 export default function MainLayout() {
+  const appRef = useRef(null)
+  const hideTimerRef = useRef(null)
+  const [chromeVisible, setChromeVisible] = useState(false)
   const [activeTab, setActiveTab] = useState('home')
   const [homeCategory, setHomeCategory] = useState('全部')
   const [menuOpen, setMenuOpen] = useState(false)
@@ -45,6 +50,46 @@ export default function MainLayout() {
     setMenuOpen(false)
     setSearchOpen(false)
   }, [])
+
+  const scheduleHideChrome = useCallback(() => {
+    if (hideTimerRef.current) clearTimeout(hideTimerRef.current)
+    hideTimerRef.current = window.setTimeout(() => {
+      setChromeVisible(false)
+    }, CHROME_HIDE_DELAY)
+  }, [])
+
+  const showChrome = useCallback(() => {
+    setChromeVisible(true)
+    if (!menuOpen && !searchOpen) {
+      scheduleHideChrome()
+    }
+  }, [menuOpen, searchOpen, scheduleHideChrome])
+
+  useEffect(() => {
+    if (menuOpen || searchOpen) {
+      setChromeVisible(true)
+      if (hideTimerRef.current) clearTimeout(hideTimerRef.current)
+      return
+    }
+
+    scheduleHideChrome()
+  }, [menuOpen, searchOpen, scheduleHideChrome])
+
+  useEffect(() => {
+    const app = appRef.current
+    if (!app) return
+
+    const onInteract = () => showChrome()
+
+    app.addEventListener('touchstart', onInteract, { passive: true })
+    app.addEventListener('mousedown', onInteract)
+
+    return () => {
+      app.removeEventListener('touchstart', onInteract)
+      app.removeEventListener('mousedown', onInteract)
+      if (hideTimerRef.current) clearTimeout(hideTimerRef.current)
+    }
+  }, [showChrome])
 
   useEffect(() => {
     const onKeyDown = (e) => {
@@ -81,7 +126,14 @@ export default function MainLayout() {
   }
 
   return (
-    <div className={`app${menuOpen || searchOpen ? ' app--locked' : ''}`}>
+    <div
+      ref={appRef}
+      className={[
+        'app',
+        menuOpen || searchOpen ? 'app--locked' : '',
+        chromeVisible ? 'app--chrome-visible' : '',
+      ].filter(Boolean).join(' ')}
+    >
       <Header
         title={currentNav?.title ?? 'HΘΓΞ 博客'}
         menuOpen={menuOpen}

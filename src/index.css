@@ -13,7 +13,7 @@
   --radius-md: 12px;
   --radius-lg: 16px;
   --header-height: 52px;
-  --bottom-nav-height: 60px;
+  --bottom-nav-height: 50px;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
     'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;

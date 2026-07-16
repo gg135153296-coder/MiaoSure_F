@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react'
 import { fetchFeaturedPosts, fetchPosts } from '../api/posts'
 import { useBlog } from '../context/BlogContext'
-import Hero from '../components/Hero'
 import CategoryTabs from '../components/CategoryTabs'
-import ArticleCard from '../components/ArticleCard'
+import ArticleList from '../components/ArticleList'
 import FeaturedCarousel from '../components/FeaturedCarousel'
 
 export default function HomePage({ activeCategory, onCategoryChange }) {
@@ -38,13 +37,11 @@ export default function HomePage({ activeCategory, onCategoryChange }) {
 
   return (
     <>
-      <Hero />
-
-      <CategoryTabs
+      {/* <CategoryTabs
         categories={categories}
         active={activeCategory}
         onChange={onCategoryChange}
-      />
+      /> */}
 
       {featuredPosts.length > 0 && activeCategory === '全部' && (
         <section className="section section--carousel">
@@ -62,11 +59,7 @@ export default function HomePage({ activeCategory, onCategoryChange }) {
         {error && !loading && <p className="page-status page-status--error">{error}</p>}
 
         {!loading && !error && (
-          <div className="article-list">
-            {listPosts.map((post) => (
-              <ArticleCard key={post.id} post={post} />
-            ))}
-          </div>
+          <ArticleList posts={listPosts} />
         )}
 
         {!loading && !error && listPosts.length === 0 && (
