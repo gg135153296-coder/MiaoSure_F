@@ -6,6 +6,7 @@ import MainLayout from './layouts/MainLayout'
 import OnboardingPage from './pages/OnboardingPage'
 
 const ArticlePage = lazy(() => import('./pages/ArticlePage'))
+const ResumePage = lazy(() => import('./pages/ResumePage'))
 
 function PageLoader() {
   return (
@@ -25,6 +26,7 @@ export default function App() {
         <Suspense fallback={<PageLoader />}>
           <Routes>
             <Route path="/welcome" element={<OnboardingPage />} />
+            <Route path="/HCF_Resume" element={<ResumePage />} />
             <Route path="/" element={<MainLayout />} />
             <Route path="/article/:id" element={<ArticlePage />} />
           </Routes>

@@ -1,6 +1,6 @@
 import { useBlog } from '../context/BlogContext'
 import { navItems } from '../data/navItems'
-import avatarImg from '../assets/touxiang.png'
+import avatarImg from '../assets/touxiang02.png'
 
 export default function SideMenu({
   open,

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { fetchProfileStats } from '../api/profile'
 import { useBlog } from '../context/BlogContext'
-import avatarImg from '../assets/touxiang.png'
+import avatarImg from '../assets/touxiang02.png'
 
 export default function ProfilePage() {
   const { blog } = useBlog()
