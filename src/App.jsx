@@ -2,6 +2,7 @@ import { Suspense, lazy } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { BlogProvider } from './context/BlogContext'
 import OnboardingGate from './components/OnboardingGate'
+import ResumeAccessGate from './components/ResumeAccessGate'
 import MainLayout from './layouts/MainLayout'
 import OnboardingPage from './pages/OnboardingPage'
 
@@ -26,7 +27,14 @@ export default function App() {
         <Suspense fallback={<PageLoader />}>
           <Routes>
             <Route path="/welcome" element={<OnboardingPage />} />
-            <Route path="/HCF_Resume" element={<ResumePage />} />
+            <Route
+              path="/HCF_Resume"
+              element={(
+                <ResumeAccessGate>
+                  <ResumePage />
+                </ResumeAccessGate>
+              )}
+            />
             <Route path="/" element={<MainLayout />} />
             <Route path="/article/:id" element={<ArticlePage />} />
           </Routes>
